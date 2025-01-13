@@ -14,11 +14,13 @@ class EvaluationMixin:
     RIGHT = 1
     EQUAL = 2
     
-    def __init__(self, client: anthropic.Anthropic=None):
+    def __init__(self, client: anthropic.Anthropic=None, verbose=False):
         if client is None:
             self.client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
         else:
             self.client = client
+
+        self.verbose = verbose
         
     def call(self, prompt: str, system_prompt: str=None) -> str:
         kwargs = dict(
@@ -34,6 +36,8 @@ class EvaluationMixin:
             
         message = self.client.messages.create(**kwargs)
         content = message.content[0].text
+        if self.verbose:
+            print(content)
         return content
     
     def evaluate(self, left, right, shared):
@@ -712,29 +716,34 @@ Remember to provide thoughtful and constructive feedback for each story, focusin
 
 
 if __name__ == "__main__":
-    evaluator = PoemAndStoryTellingEvaluation()
+    evaluator = PoemAndStoryTellingEvaluation(verbose=True)
 
     print(evaluator.evaluate(
-        requirement="Hãy sáng tác một bài thơ lấy cảm hứng từ chủ đề hoặc cụm từ sau đây: Biến đổi khí hậu và môi trường - Gọi mời hành động bảo vệ môi trường thông qua thơ ca.",
-        right="Mẹ Trái Đất thở than, hơi nóng rát da\nDòng sông bạc xưa nay, nay chỉ còn phù sa\nMưa bão hung tàn đến, gió rét cắt da thịt\nCánh đồng vàng úa héo, tiếng chim rơi lặng thinh.\n\n\nRừng già rụng lá xanh, khói đen phủ mờ trời\nNúi non trơ sỏi đá, nguồn nước cạn khô rồi\nNhững con thuyền nan nhỏ, lênh đênh trên bão tố\nCâu hát ru buồn thiu, vọng mãi giữa mênh mông.\n\n\nBà già làng kể chuyện, thuở trước mùa màng tươi\nSuối mát róc rách chảy, chim muông gọi nhau chơi\nGió đưa hương lúa chín, thơm nồng khắp đồng quê\nNay chỉ còn khói bụi, bao trùm khắp mọi nơi.\n\n\nCon cháu ta mai sau, nhìn cảnh tượng này sao?\nĐất khô cằn nứt nẻ, biển cả dậy sóng cao\nChim bay lạc phương hướng, cá chết trôi lênh đênh\nLòng người sao cứ quên, trách nhiệm với quê hương?\n\n\nHãy thức tỉnh nào hỡi, những tâm hồn Việt Nam!\nBảo vệ rừng xanh ngát, giữ sạch dòng sông ngòi\nTrồng thêm cây xanh tốt, để cho đất thở dài\nHãy chung tay góp sức, cho đời thêm tươi sáng.\n\n\nTừ những hành động nhỏ, tình yêu sẽ lớn lên\nVì một tương lai xanh, cho con cháu mai sau\nHãy bảo vệ môi trường, đừng để trái đất đau\nTương lai tươi sáng mãi, Việt Nam đẹp muôn đời.\n",
-        left="""Biến đổi khí hậu, thiên tai dâng lên,
-Mưa rơi bất chợt, bão tố tơi bời,
-Cây cối khô héo, biển xanh cũng vơi,
-Trái đất khắc khoải, kêu gọi mỗi người.
+        requirement="Hãy tạo một câu chuyện dựa theo các cụm gợi ý dưới đây:\nMột nhà thám hiểm người Việt tên là Mai Anh, quyết tâm tìm kiếm truyền thuyết về thành phố vàng bị mất tích ở vùng núi phía Tây Bắc.  Cô ấy phải vượt qua những thử thách nguy hiểm, đối mặt với những bộ tộc bản địa bí ẩn và những hiểm họa tự nhiên khắc nghiệt.",
+        
+        right="""Hành Trình Tìm Kiếm Thành Phố Vàng
 
-Môi trường ô nhiễm, không khí ngột ngạt,
-Rừng cây mất đi, cạn kiệt nguồn sống,
-Chúng ta đừng đứng nhìn, đừng mãi thờ ơ,
-Hành động ngay hôm nay, đừng để quá muộn màng.
+Mai Anh, một nhà thám hiểm trẻ tuổi người Việt, nổi tiếng với niềm đam mê khám phá và sự kiên định, quyết định thực hiện một hành trình phi thường. Truyền thuyết về thành phố vàng bí ẩn, được đồn đại là nằm sâu trong vùng núi hiểm trở của Tây Bắc, đã thôi thúc cô từ thời thơ ấu. Không một ai biết thành phố này có thật hay chỉ là sản phẩm của trí tưởng tượng, nhưng với Mai Anh, đó là giấc mơ và thử thách lớn nhất đời cô.
 
-Hãy chung tay bảo vệ, giữ gìn đất mẹ,
-Từng hành động nhỏ, tạo ra sức mạnh lớn,
-Trồng cây, giảm rác, tiết kiệm năng lượng,
-Hãy cho thế hệ sau một hành tinh xanh.
+Khởi Hành
+Mai Anh bắt đầu hành trình của mình từ một ngôi làng nhỏ nằm bên chân núi. Mang theo bản đồ cổ mờ nhạt, la bàn, và lòng quyết tâm sắt đá, cô tiến vào rừng rậm. Cảnh sắc núi non hùng vĩ hiện ra trước mắt, nhưng ẩn sau vẻ đẹp đó là những nguy hiểm khó lường: vực thẳm cheo leo, dòng suối dữ và thời tiết khắc nghiệt.
 
-Biến đổi khí hậu không phải điều xa vời,
-Chúng ta có thể thay đổi, tạo nên sự khác biệt,
-Bằng tình yêu và trách nhiệm với trái đất,
-Hãy cùng nhau hành động, bảo vệ môi trường hôm nay!""",
-    type="poem"
+Gặp Gỡ Bộ Tộc Bí Ẩn
+Trên đường đi, Mai Anh tình cờ gặp một bộ tộc bản địa sống ẩn dật trong rừng sâu. Những người này ban đầu không chào đón cô, nhưng bằng lòng chân thành và khả năng giao tiếp khéo léo, cô đã chiếm được lòng tin của họ. Tộc trưởng tiết lộ rằng họ là người bảo vệ bí mật của thành phố vàng và đưa ra một thử thách: Mai Anh phải vượt qua ba bài kiểm tra về lòng can đảm, trí tuệ và sự bền bỉ.
+
+Thử thách lòng can đảm: Cô phải băng qua một cây cầu treo lơ lửng trên vực sâu dưới màn đêm tối mịt.
+Thử thách trí tuệ: Cô giải một câu đố phức tạp liên quan đến các ngôi sao và các ký hiệu cổ trên bản đồ.
+Thử thách sự bền bỉ: Mai Anh vượt qua một ngọn núi cao với thời tiết khắc nghiệt, tuyết rơi trắng xóa.
+Hiểm Họa Tự Nhiên
+Sau khi vượt qua các thử thách, Mai Anh tiếp tục hành trình với sự chỉ dẫn của bộ tộc. Cô phải đối mặt với các hiểm họa tự nhiên: những trận lở đất bất ngờ, các con thú hoang hung dữ, và đặc biệt là một trận bão lớn suýt cuốn cô rơi xuống vực sâu. Nhưng mỗi lần, cô đều vượt qua nhờ lòng quyết tâm và những kỹ năng sinh tồn đã rèn luyện từ trước.
+
+Khám Phá Thành Phố Vàng
+Cuối cùng, sau nhiều ngày gian khổ, Mai Anh đứng trước một thung lũng tuyệt đẹp, nơi ánh mặt trời phản chiếu trên những công trình bằng vàng rực rỡ. Thành phố vàng hiện ra, lung linh như trong mơ. Cô bước vào, cảm nhận từng hơi thở của lịch sử và văn hóa mà không ai ngoài cô có cơ hội chứng kiến.
+
+Thông Điệp Truyền Lại
+Mai Anh không mang vàng trở về, bởi cô hiểu rằng giá trị thật sự của chuyến hành trình không nằm ở kho báu, mà là những bài học về lòng kiên định, sự khiêm nhường và kết nối với con người, thiên nhiên. Câu chuyện của cô trở thành nguồn cảm hứng cho nhiều thế hệ sau, nhắc nhở mọi người rằng: "Kho báu lớn nhất chính là hành trình và trái tim can đảm của bạn.""",
+
+        left="Thành Phố Vàng Mất Tích\n\nMai Anh, một nhà thám hiểm trẻ tuổi với đôi mắt sáng rực lửa đam mê và mái tóc đen dài thường được cột gọn gàng, đã dành cả cuộc đời mình để theo đuổi truyền thuyết về thành phố vàng Pa-thôm huyền thoại, bị chôn vùi sâu trong lòng dãy núi Hoàng Liên Sơn hùng vĩ. Những câu chuyện kể về thành phố lộng lẫy, tràn ngập vàng bạc châu báu và những bí mật cổ xưa đã thôi thúc cô từ thuở nhỏ. Bản đồ rách nát, được truyền lại từ đời ông cố của cô, là kim chỉ nam duy nhất trong cuộc hành trình đầy gian nan này.\n\nKhởi hành từ một ngôi làng nhỏ nằm dưới chân núi, Mai Anh mang theo ba lô nặng trĩu hành trang: dao găm, la bàn, thuốc men, và một trái tim dũng cảm. Con đường phía trước gập ghềnh, hiểm trở, những con dốc dựng đứng cheo leo, những dòng suối chảy xiết, và những khu rừng rậm rạp, đầy rẫy những loài động vật hoang dã. Cô phải vượt qua những cơn mưa rừng bất chợt, những đêm lạnh giá thấu xương, và sự đói khát hành hạ.\n\nTrên đường đi, Mai Anh gặp gỡ những bộ tộc người Dao, người Mông sống ẩn cư trong những thung lũng sâu thẳm. Ban đầu, họ tỏ ra nghi ngờ và cảnh giác với người lạ, nhưng sự chân thành và lòng dũng cảm của Mai Anh đã dần dần chinh phục được họ. Họ chia sẻ với cô những câu chuyện truyền miệng về Pa-thôm, những lời tiên tri bí ẩn, và cả những lời cảnh báo về những nguy hiểm rình rập. Một vị già làng đã tặng cho cô một chiếc vòng cổ bằng đá quý, được cho là có khả năng bảo vệ cô khỏi những tà ma và thú dữ.\n\nCuối cùng, sau bao tháng ngày gian khổ, Mai Anh cũng đến được nơi được cho là vị trí của Pa-thôm. Tuy nhiên, thay vì một thành phố lộng lẫy, cô chỉ tìm thấy một hang động tối tăm, sâu hun hút. Trong lòng hang động, cô phát hiện ra không phải vàng bạc châu báu, mà là những bức bích họa cổ xưa, kể lại câu chuyện về một nền văn minh đã từng thịnh vượng, rồi bị tàn phá bởi thiên tai và chiến tranh. Những bức bích họa không chỉ là những hình ảnh, mà còn là những bài học về sự trường tồn của thiên nhiên, sự ngắn ngủi của vinh hoa phú quý, và tầm quan trọng của sự hòa hợp giữa con người với thiên nhiên.\n\nMai Anh trở về, không mang theo vàng bạc, nhưng mang trong lòng một kho tàng tri thức quý giá. Cuộc hành trình của cô không chỉ là một cuộc tìm kiếm thành phố vàng, mà còn là một cuộc hành trình khám phá bản thân, vượt qua giới hạn của chính mình và tìm thấy ý nghĩa đích thực của cuộc sống. Cô hiểu rằng, giá trị thực sự không nằm ở những thứ vật chất hào nhoáng, mà nằm ở những trải nghiệm, những bài học, và tình người mà cô đã gặp gỡ trên đường đi. Câu chuyện về Mai Anh và thành phố vàng mất tích trở thành một huyền thoại mới, một lời nhắc nhở về sự khiêm nhường trước thiên nhiên và vẻ đẹp của sự bền bỉ, kiên trì trong cuộc sống.",
+        
+        type="story",
     ))
