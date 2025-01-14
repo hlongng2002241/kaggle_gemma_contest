@@ -303,25 +303,29 @@ Please proceed with your evaluation and decision.
         if right_correctness is None:
             return
         
-        if self.decision_to_score(left_correctness["decision"]) < self.decision_to_score(right_correctness["decision"]):
-            return self.RIGHT
-        if self.decision_to_score(left_correctness["decision"]) > self.decision_to_score(right_correctness["decision"]):
-            return self.LEFT
+        metadata = {"output": {"left": left_correctness, "right": right_correctness}}
         
-        if self.rating_to_score(left_correctness["rating"]) < self.rating_to_score(right_correctness["rating"]):
-            return self.RIGHT
-        if self.rating_to_score(left_correctness["rating"]) > self.rating_to_score(right_correctness["rating"]):
-            return self.LEFT
+        if self.decision_to_score[left_correctness["decision"]] < self.decision_to_score[right_correctness["decision"]]:
+            return self.RIGHT, metadata
+        if self.decision_to_score[left_correctness["decision"]] > self.decision_to_score[right_correctness["decision"]]:
+            return self.LEFT, metadata
+        
+        if self.rating_to_score[left_correctness["rating"]] < self.rating_to_score[right_correctness["rating"]]:
+            return self.RIGHT, metadata
+        if self.rating_to_score[left_correctness["rating"]] > self.rating_to_score[right_correctness["rating"]]:
+            return self.LEFT, metadata
         
         comparison = self.evaluate_comparison(left, right, original_text)
         if comparison is None:
             return
         
+        metadata["output"]["comparison"] = comparison
+        
         if comparison["better"] == 1:
-            return self.LEFT
+            return self.LEFT, metadata
         if comparison["better"] == 2:
-            return self.RIGHT
-        return self.EQUAL
+            return self.RIGHT, metadata
+        return self.EQUAL, metadata
 
     def evaluate_correctness(self, translation: str, original_text: str):
         return self.run_with_retry(3, self._evaluate_correctness, translation, original_text)
@@ -543,7 +547,8 @@ Please proceed with your evaluation of the answers to the cultural question.
             "right": {
                 "correctness": self.extract_value(ret_ans_2, "Correctness"),
                 "rating": self.extract_value(ret_ans_2, "Overall Rating"),
-            }
+            },
+            "output": output
         }
         
         comparison = self.extract_score(comparison, "Better answer")
@@ -704,7 +709,8 @@ Remember to provide thoughtful and constructive feedback for each story, focusin
             },
             "right": {
                 "rating": self.extract_value(ret_ans_2, "Overall Rating"),
-            }
+            },
+            "output": output
         }
 
         comparison = self.extract_score(comparison, f"Better {type}")
